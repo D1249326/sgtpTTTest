@@ -1,9 +1,19 @@
+const express = require("express");
 const axios = require("axios");
-const upload = require("./upload");
+const multer = require("multer");
 const { db } = require("./firebase");
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const IMGBB_KEY = process.env.IMGBB_KEY;
 
+// 使用 memory storage，檔案會存在 buffer
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+// 上傳路由
 app.post("/upload", upload.single("picture"), async (req, res) => {
   try {
     const { name, condition, description } = req.body;
@@ -11,20 +21,21 @@ app.post("/upload", upload.single("picture"), async (req, res) => {
 
     if (!file) return res.status(400).send("沒有圖片");
 
-    // ✅ 轉 Base64
+    // 轉 Base64
     const base64Image = file.buffer.toString("base64");
 
-    // ✅ 上傳到 ImgBB
+    // 上傳到 ImgBB
     const response = await axios.post(
       `https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`,
       new URLSearchParams({
-        image: base64Image
+        image: base64Image,
+        name: file.originalname
       })
     );
 
     const imageURL = response.data.data.url;
 
-    // ✅ 存 Firestore
+    // 存 Firestore
     await db.collection("products").add({
       name,
       condition,
@@ -33,12 +44,25 @@ app.post("/upload", upload.single("picture"), async (req, res) => {
       createdAt: new Date()
     });
 
+    // 回傳結果給前端
     res.json({
       message: "上傳成功",
       imageURL
     });
 
   } catch (error) {
+    console.error(error);
     res.status(500).send("上傳失敗：" + error.message);
   }
 });
+
+// 啟動服務
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+const path = require('path');
+
+// 提供 public 資料夾
+app.use(express.static(path.join(__dirname, 'public')));

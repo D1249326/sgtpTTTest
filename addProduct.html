@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>上傳商品</title>
+</head>
+<body>
+  <h1>上傳商品</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <label>商品名稱: <input type="text" name="name" required></label><br>
+    <label>新舊程度: <input type="text" name="condition" required></label><br>
+    <label>商品說明: <textarea name="description" required></textarea></label><br>
+    <label>商品照片: <input type="file" name="picture" accept="image/*" required></label><br>
+    <button type="submit">上傳</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        resultDiv.innerHTML = `<p>${data.message}</p><img src="${data.imageURL}" width="200">`;
+
+      } catch (err) {
+        resultDiv.textContent = "上傳失敗: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
