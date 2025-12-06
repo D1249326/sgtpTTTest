@@ -1,27 +1,23 @@
 const express = require("express");
 const axios = require("axios");
 const multer = require("multer");
+const path = require("path");
 const { db } = require("./firebase");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const path = require('path');
-
 // 提供 public 資料夾靜態檔案
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 const IMGBB_KEY = process.env.IMGBB_KEY;
 
-// 使用 memory storage，檔案會存在 buffer
+// memoryStorage for multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-
-
-// 上傳路由
+// 上傳商品路由
 app.post("/upload", upload.single("picture"), async (req, res) => {
   try {
     const { name, condition, description } = req.body;
@@ -69,8 +65,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-const path = require('path');
-
-// 提供 public 資料夾
-app.use(express.static(path.join(__dirname, 'public')));
