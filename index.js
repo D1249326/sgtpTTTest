@@ -7,11 +7,19 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const path = require('path');
+
+// 提供 public 資料夾靜態檔案
+app.use(express.static(path.join(__dirname, 'public')));
+
+
 const IMGBB_KEY = process.env.IMGBB_KEY;
 
 // 使用 memory storage，檔案會存在 buffer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+
 
 // 上傳路由
 app.post("/upload", upload.single("picture"), async (req, res) => {
