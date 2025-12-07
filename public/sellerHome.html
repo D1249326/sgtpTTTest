@@ -76,12 +76,51 @@
       height: 70%;
       overflow-y: auto;
     }
-
     .order-item {
       font-size: 18px;
       margin-bottom: 20px;
       padding-bottom: 10px;
       border-bottom: 1px solid #aaa;
+    }
+
+    /* 商品格子樣式 */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .product-item {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .product-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      margin-bottom: 8px;
+    }
+
+    .product-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .product-price {
+      color: #e53935;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .product-stock {
+      color: #666;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -91,14 +130,15 @@
 
   <!-- 左邊側欄 -->
   <div class="sidebar">
-    <h3>訂單管理</h3>
+    <div class="title-box">SGTP 賣家中心</div>
+    <div class="menu-item">訂單管理</div>
     <div class="menu-item">商品管理</div>
     <div class="menu-item">賣場資訊</div>
   </div>
 
   <!-- 右邊主視窗 -->
   <div class="main">
-    <div class="title-box">SGTP 賣家中心</div>
+    
 
     <!-- 訂單分類標籤 -->
     <div class="tabs">
@@ -108,23 +148,25 @@
       <div class="tab">已取消</div>
     </div>
 
-    <!-- 訂單列表 -->
+    <!-- 商品展示列表（可用 JS 動態加入） -->
     <div class="order-box">
-      <div class="order-item">
-        🛒 訂單編號：M16881  
-        <br>商品：白色短袖  
-        <br>已付款、備貨中  
-        <br>訂購時間：2025-02-05
-      </div>
+      <div class="product-grid">
+        <div class="product-item">
+          <img src="https://via.placeholder.com/300x200?text=%E7%99%BD%E8%89%B2%E7%9F%AD%E8%A2%96" alt="白色短袖">
+          <div class="product-name">白色短袖</div>
+          <div class="product-price">NT$ 399</div>
+          <div class="product-stock">庫存：12</div>
+        </div>
 
-      <div class="order-item">
-        🛒 訂單編號：M16882  
-        <br>商品：牛仔褲  
-        <br>等待確認  
-        <br>訂購時間：2025-02-05
-      </div>
+        <div class="product-item">
+          <img src="https://via.placeholder.com/300x200?text=%E7%89%9B%E4%BB%94%E8%A4%B2" alt="牛仔褲">
+          <div class="product-name">牛仔褲</div>
+          <div class="product-price">NT$ 1,299</div>
+          <div class="product-stock">庫存：5</div>
+        </div>
 
-      <!-- 之後可用 JS 自動加入 -->
+        <!-- 範例：可用 JavaScript 由後端或 localStorage 動態渲染更多商品 -->
+      </div>
     </div>
   </div>
 
