@@ -159,9 +159,9 @@
 
 </div>
 
-<!-- 🔥 Firebase JS SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+<!-- 🔥 Firebase JS SDK (使用 compat 以配合原本的 namespaced API) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
   // TODO：放入你的 Firebase 設定
@@ -175,34 +175,45 @@
     appId: "1:806654636750:web:48af99545d41f536dd569f"
   };
 
+  // 初始化（compat 支援舊的 firebase.* API）
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
   const grid = document.getElementById("productGrid");
 
-  // 🔥 取得所有商品（由新到舊）
+  // 取得並渲染所有商品（由新到舊）
   async function loadProducts() {
-    const snapshot = await db.collection("products")
-      .orderBy("createdAt", "desc")
-      .get();
+    try {
+      const snapshot = await db.collection("products")
+        .orderBy("createdAt", "desc")
+        .get();
 
-    grid.innerHTML = ""; // 清空
+      grid.innerHTML = ""; // 清空
 
-    snapshot.forEach(doc => {
-      const p = doc.data();
+      if (snapshot.empty) {
+        grid.innerHTML = '<div style="padding:20px;color:#666">目前沒有商品（或無權限讀取資料）。請檢查 Firestore collection 是否存在或 rules 是否允許讀取。）</div>';
+        return;
+      }
 
-      const item = document.createElement("div");
-      item.className = "product-item";
+      snapshot.forEach(doc => {
+        const p = doc.data();
 
-      item.innerHTML = `
-        <a class="edit-btn" href="editProduct.html?id=${doc.id}">修改</a>
-        <img src="${p.imageUrl || "https://via.placeholder.com/150"}" alt="${p.name}">
-        <div class="product-name">${p.name}</div>
-        <div class="product-price">NT$ ${p.price}</div>
-      `;
+        const item = document.createElement("div");
+        item.className = "product-item";
 
-      grid.appendChild(item);
-    });
+        item.innerHTML = `
+          <a class="edit-btn" href="editProduct.html?id=${doc.id}">修改</a>
+          <img src="${p.imageUrl || "https://via.placeholder.com/150"}" alt="${p.name}">
+          <div class="product-name">${p.name}</div>
+          <div class="product-price">NT$ ${p.price}</div>
+        `;
+
+        grid.appendChild(item);
+      });
+    } catch (err) {
+      console.error('loadProducts error', err);
+      grid.innerHTML = `<div style="padding:20px;color:#e53935">載入商品失敗：${err.message}</div>`;
+    }
   }
 
   loadProducts();
