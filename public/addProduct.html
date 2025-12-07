@@ -8,8 +8,8 @@
   <h1>上傳商品</h1>
   <form id="uploadForm" enctype="multipart/form-data">
     <label>商品名稱: <input type="text" name="name" required></label><br>
+    <label>價格 (NT$): <input type="number" name="price" step="0.01" min="0" required></label><br>
     <label>新舊程度: <input type="text" name="condition" required></label><br>
-    <label>價格: <input type="int" name="price" required></label><br>
     <label>商品說明: <textarea name="description" required></textarea></label><br>
     <label>商品照片: <input type="file" name="picture" accept="image/*" required></label><br>
     <button type="submit">上傳</button>
