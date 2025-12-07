@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>修改商品</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 300px;
+      padding: 8px;
+      margin-top: 5px;
+    }
+
+    .product-image {
+      margin-top: 10px;
+      border: 1px solid #aaa;
+      width: 200px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>修改商品</h1>
+
+<form id="editForm" enctype="multipart/form-data">
+  <label>商品名稱</label>
+  <input type="text" id="name" name="name" required>
+
+  <label>商品說明</label>
+  <textarea id="description" name="description" rows="4" required></textarea>
+
+  <label>商品照片</label>
+  <img id="currentImage" class="product-image" src="" alt="目前圖片">
+  <br>
+  <input type="file" id="picture" name="picture" accept="image/*">
+
+  <button type="submit">送出修改</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+  // 取得網址參數 ?id=xxxx
+  const urlParams = new URLSearchParams(window.location.search);
+  const productId = urlParams.get("id");
+
+  const nameInput = document.getElementById("name");
+  const descInput = document.getElementById("description");
+  const currentImage = document.getElementById("currentImage");
+  const resultDiv = document.getElementById("result");
+
+
+  // ⭐ Step 1：向後端請求商品資料
+  async function loadProduct() {
+    if (!productId) {
+      resultDiv.textContent = "缺少商品 ID！";
+      return;
+    }
+
+    try {
+      const res = await fetch(`/product?id=${productId}`);
+      const data = await res.json();
+
+      nameInput.value = data.name;
+      descInput.value = data.description;
+      currentImage.src = data.picture;
+
+    } catch (err) {
+      resultDiv.textContent = "載入商品失敗：" + err.message;
+    }
+  }
+
+  loadProduct();
+
+
+  // ⭐ Step 2：送出修改
+  document.getElementById("editForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("id", productId);
+    formData.append("name", nameInput.value);
+    formData.append("description", descInput.value);
+
+    if (picture.files[0]) {
+      formData.append("picture", picture.files[0]);
+    }
+
+    try {
+      const res = await fetch("/editProduct", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await res.json();
+      resultDiv.textContent = result.message;
+
+      if (result.newImageURL) {
+        currentImage.src = result.newImageURL;
+      }
+
+    } catch (err) {
+      resultDiv.textContent = "修改失敗：" + err.message;
+    }
+  });
+</script>
+
+</body>
+</html>
