@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>SGTP 賣家中心</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+    }
+
+    /* 整體框架 */
+    .container {
+      display: flex;
+      height: 100vh;
+      border: 3px solid #000;
+    }
+
+    /* 左側選單 */
+    .sidebar {
+      width: 200px;
+      border-right: 3px solid #000;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h3 {
+      margin-top: 10px;
+      margin-bottom: 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .menu-item {
+      margin: 15px 0;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    /* 中央內容 */
+    .main {
+      flex: 1;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* 標題 */
+    .title-box {
+      display: inline-block;
+      font-size: 28px;
+      font-weight: bold;
+      border: 3px solid #000;
+      padding: 10px 20px;
+      margin-bottom: 20px;
+    }
+
+    /* 訂單標籤列 */
+    .tabs {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      font-size: 20px;
+      padding: 5px 10px;
+      border-bottom: 3px solid #000;
+      cursor: pointer;
+    }
+
+    /* 主內容區（訂單顯示） */
+    .order-box {
+      border: 2px solid #000;
+      padding: 20px;
+      height: 70%;
+      overflow-y: auto;
+    }
+
+    .order-item {
+      font-size: 18px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #aaa;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- 左邊側欄 -->
+  <div class="sidebar">
+    <h3>訂單管理</h3>
+    <div class="menu-item">商品管理</div>
+    <div class="menu-item">賣場資訊</div>
+  </div>
+
+  <!-- 右邊主視窗 -->
+  <div class="main">
+    <div class="title-box">SGTP 賣家中心</div>
+
+    <!-- 訂單分類標籤 -->
+    <div class="tabs">
+      <div class="tab">待確認</div>
+      <div class="tab">待備貨</div>
+      <div class="tab">已完成</div>
+      <div class="tab">已取消</div>
+    </div>
+
+    <!-- 訂單列表 -->
+    <div class="order-box">
+      <div class="order-item">
+        🛒 訂單編號：M16881  
+        <br>商品：白色短袖  
+        <br>已付款、備貨中  
+        <br>訂購時間：2025-02-05
+      </div>
+
+      <div class="order-item">
+        🛒 訂單編號：M16882  
+        <br>商品：牛仔褲  
+        <br>等待確認  
+        <br>訂購時間：2025-02-05
+      </div>
+
+      <!-- 之後可用 JS 自動加入 -->
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
