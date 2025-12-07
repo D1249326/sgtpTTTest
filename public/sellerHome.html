@@ -203,7 +203,7 @@
 
         item.innerHTML = `
           <a class="edit-btn" href="editProduct.html?id=${doc.id}">修改</a>
-          <img src="${p.imageUrl || "https://via.placeholder.com/150"}" alt="${p.name}">
+          <img src="${p.picture || "https://via.placeholder.com/150"}" alt="${p.name}">
           <div class="product-name">${p.name}</div>
           <div class="product-price">NT$ ${p.price}</div>
         `;
