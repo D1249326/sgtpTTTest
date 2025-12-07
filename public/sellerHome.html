@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>SGTP 賣家中心</title>
+
   <style>
     body {
       margin: 0;
@@ -55,7 +56,7 @@
       margin-bottom: 20px;
     }
 
-    /* 訂單標籤列 */
+    /* Tabs */
     .tabs {
       display: flex;
       gap: 20px;
@@ -69,24 +70,18 @@
       cursor: pointer;
     }
 
-    /* 主內容區（訂單顯示） */
+    /* 商品展示區域 */
     .order-box {
       border: 2px solid #000;
       padding: 20px;
-      height: 70%;
+      height: 75%;
       overflow-y: auto;
     }
-    .order-item {
-      font-size: 18px;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #aaa;
-    }
 
-    /* 商品格子樣式 */
+    /* 商品卡片網格 */
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 16px;
       align-items: start;
     }
@@ -94,9 +89,9 @@
     .product-item {
       border: 1px solid #ddd;
       padding: 12px;
-      text-align: center;
       background: #fff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      position: relative;
     }
 
     .product-item img {
@@ -104,6 +99,19 @@
       height: 150px;
       object-fit: cover;
       margin-bottom: 8px;
+    }
+
+    .edit-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #1976d2;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
     }
 
     .product-name {
@@ -118,17 +126,13 @@
       margin-bottom: 6px;
     }
 
-    .product-stock {
-      color: #666;
-      font-size: 14px;
-    }
   </style>
 </head>
 <body>
 
 <div class="container">
 
-  <!-- 左邊側欄 -->
+  <!-- 左側 -->
   <div class="sidebar">
     <div class="title-box">SGTP 賣家中心</div>
     <div class="menu-item">訂單管理</div>
@@ -136,11 +140,9 @@
     <div class="menu-item">賣場資訊</div>
   </div>
 
-  <!-- 右邊主視窗 -->
+  <!-- 主視窗 -->
   <div class="main">
-    
 
-    <!-- 訂單分類標籤 -->
     <div class="tabs">
       <div class="tab">待確認</div>
       <div class="tab">待備貨</div>
@@ -148,29 +150,63 @@
       <div class="tab">已取消</div>
     </div>
 
-    <!-- 商品展示列表（可用 JS 動態加入） -->
     <div class="order-box">
-      <div class="product-grid">
-        <div class="product-item">
-          <img src="https://via.placeholder.com/300x200?text=%E7%99%BD%E8%89%B2%E7%9F%AD%E8%A2%96" alt="白色短袖">
-          <div class="product-name">白色短袖</div>
-          <div class="product-price">NT$ 399</div>
-          <div class="product-stock">庫存：12</div>
-        </div>
-
-        <div class="product-item">
-          <img src="https://via.placeholder.com/300x200?text=%E7%89%9B%E4%BB%94%E8%A4%B2" alt="牛仔褲">
-          <div class="product-name">牛仔褲</div>
-          <div class="product-price">NT$ 1,299</div>
-          <div class="product-stock">庫存：5</div>
-        </div>
-
-        <!-- 範例：可用 JavaScript 由後端或 localStorage 動態渲染更多商品 -->
+      <div class="product-grid" id="productGrid">
+        <!-- JS 會自動插入商品 -->
       </div>
     </div>
   </div>
 
 </div>
+
+<!-- 🔥 Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
+<script>
+  // TODO：放入你的 Firebase 設定
+  const firebaseConfig = {
+    apiKey: "AIzaSyAXNkqm1UYZzTm6LZ_tctZ9L4YSDEWf1bc",
+    authDomain: "sgtp-b3066.firebaseapp.com",
+    databaseURL: "https://sgtp-b3066-default-rtdb.firebaseio.com",
+    projectId: "sgtp-b3066",
+    storageBucket: "sgtp-b3066.firebasestorage.app",
+    messagingSenderId: "806654636750",
+    appId: "1:806654636750:web:48af99545d41f536dd569f"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const grid = document.getElementById("productGrid");
+
+  // 🔥 取得所有商品（由新到舊）
+  async function loadProducts() {
+    const snapshot = await db.collection("products")
+      .orderBy("createdAt", "desc")
+      .get();
+
+    grid.innerHTML = ""; // 清空
+
+    snapshot.forEach(doc => {
+      const p = doc.data();
+
+      const item = document.createElement("div");
+      item.className = "product-item";
+
+      item.innerHTML = `
+        <a class="edit-btn" href="editProduct.html?id=${doc.id}">修改</a>
+        <img src="${p.imageUrl || "https://via.placeholder.com/150"}" alt="${p.name}">
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">NT$ ${p.price}</div>
+      `;
+
+      grid.appendChild(item);
+    });
+  }
+
+  loadProducts();
+</script>
 
 </body>
 </html>

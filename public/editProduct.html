@@ -3,13 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>修改商品</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
+      padding: 30px;
+      background: #fafafa;
     }
 
-    h1 {
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid #000;
+    }
+
+    h2 {
+      text-align: center;
       margin-bottom: 20px;
     }
 
@@ -19,117 +31,147 @@
       margin-top: 15px;
     }
 
-    input[type="text"],
-    textarea {
-      width: 300px;
-      padding: 8px;
-      margin-top: 5px;
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      font-size: 16px;
     }
 
-    .product-image {
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+
+    img {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border: 1px solid #ccc;
       margin-top: 10px;
-      border: 1px solid #aaa;
-      width: 200px;
     }
 
     button {
+      width: 100%;
+      padding: 12px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      font-size: 18px;
       margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
+      border-radius: 5px;
       cursor: pointer;
     }
 
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
+    button:hover {
+      background: #0d47a1;
     }
   </style>
 </head>
 <body>
 
-<h1>修改商品</h1>
+<div class="container">
+  <h2>修改商品</h2>
 
-<form id="editForm" enctype="multipart/form-data">
   <label>商品名稱</label>
-  <input type="text" id="name" name="name" required>
+  <input type="text" id="productName">
 
   <label>商品說明</label>
-  <textarea id="description" name="description" rows="4" required></textarea>
+  <textarea id="productDesc"></textarea>
 
-  <label>商品照片</label>
-  <img id="currentImage" class="product-image" src="" alt="目前圖片">
-  <br>
-  <input type="file" id="picture" name="picture" accept="image/*">
+  <label>商品圖片（重新上傳）</label>
+  <input type="file" id="productImage" accept="image/*">
 
-  <button type="submit">送出修改</button>
-</form>
+  <img id="previewImage" src="" alt="目前商品圖片">
 
-<div id="result"></div>
+  <button onclick="updateProduct()">更新商品</button>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
 
 <script>
-  // 取得網址參數 ?id=xxxx
+  // TODO：換成你的 Firebase 設定
+  const firebaseConfig = {
+    apiKey: "AIzaSyAXNkqm1UYZzTm6LZ_tctZ9L4YSDEWf1bc",
+    authDomain: "sgtp-b3066.firebaseapp.com",
+    databaseURL: "https://sgtp-b3066-default-rtdb.firebaseio.com",
+    projectId: "sgtp-b3066",
+    storageBucket: "sgtp-b3066.firebasestorage.app",
+    messagingSenderId: "806654636750",
+    appId: "1:806654636750:web:48af99545d41f536dd569f"
+    };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  // 取得商品 ID
   const urlParams = new URLSearchParams(window.location.search);
   const productId = urlParams.get("id");
 
-  const nameInput = document.getElementById("name");
-  const descInput = document.getElementById("description");
-  const currentImage = document.getElementById("currentImage");
-  const resultDiv = document.getElementById("result");
+  const nameInput = document.getElementById("productName");
+  const descInput = document.getElementById("productDesc");
+  const imgPreview = document.getElementById("previewImage");
+  const imgInput   = document.getElementById("productImage");
 
+  let currentImageUrl = ""; // Firestore 原本的圖片 URL
 
-  // ⭐ Step 1：向後端請求商品資料
+  // 🔥 載入商品資料
   async function loadProduct() {
-    if (!productId) {
-      resultDiv.textContent = "缺少商品 ID！";
+    const doc = await db.collection("products").doc(productId).get();
+
+    if (!doc.exists) {
+      alert("找不到此商品！");
       return;
     }
 
-    try {
-      const res = await fetch(`/product?id=${productId}`);
-      const data = await res.json();
+    const data = doc.data();
 
-      nameInput.value = data.name;
-      descInput.value = data.description;
-      currentImage.src = data.picture;
+    nameInput.value = data.name || "";
+    descInput.value = data.description || "";
+    currentImageUrl = data.imageUrl || "";
 
-    } catch (err) {
-      resultDiv.textContent = "載入商品失敗：" + err.message;
-    }
+    imgPreview.src = currentImageUrl || "https://via.placeholder.com/300x200?text=No+Image";
   }
 
   loadProduct();
 
+  // 🔥 更新商品資料
+  async function updateProduct() {
+    const name = nameInput.value.trim();
+    const desc = descInput.value.trim();
+    const imageFile = imgInput.files[0];
 
-  // ⭐ Step 2：送出修改
-  document.getElementById("editForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("id", productId);
-    formData.append("name", nameInput.value);
-    formData.append("description", descInput.value);
-
-    if (picture.files[0]) {
-      formData.append("picture", picture.files[0]);
+    if (!name) {
+      alert("商品名稱不能為空！");
+      return;
     }
 
-    try {
-      const res = await fetch("/editProduct", {
-        method: "POST",
-        body: formData
-      });
+    let newImageUrl = currentImageUrl;
 
-      const result = await res.json();
-      resultDiv.textContent = result.message;
-
-      if (result.newImageURL) {
-        currentImage.src = result.newImageURL;
-      }
-
-    } catch (err) {
-      resultDiv.textContent = "修改失敗：" + err.message;
+    // 🔥 如果使用者有重新上傳圖片 → 上傳 Firebase Storage
+    if (imageFile) {
+      const storageRef = storage.ref(`products/${productId}_${Date.now()}`);
+      await storageRef.put(imageFile);
+      newImageUrl = await storageRef.getDownloadURL();
     }
-  });
+
+    // 🔥 更新 Firestore
+    await db.collection("products").doc(productId).update({
+      name,
+      description: desc,
+      imageUrl: newImageUrl,
+      updatedAt: new Date()
+    });
+
+    alert("商品更新成功！");
+    window.location.href = "sellerDashboard.html";
+  }
 </script>
 
 </body>
