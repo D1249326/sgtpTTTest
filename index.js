@@ -15,7 +15,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 app.post("/upload", upload.single("picture"), async (req, res) => {
   try {
-    const { name, condition, description } = req.body;
+    const { name, price, condition, description } = req.body;
     const file = req.file;
     if (!file) return res.status(400).send("沒有圖片");
 
@@ -33,6 +33,7 @@ app.post("/upload", upload.single("picture"), async (req, res) => {
 
     await db.collection("products").add({
       name,
+      price: parseFloat(price) || 0,
       condition,
       description,
       picture: imageURL,
